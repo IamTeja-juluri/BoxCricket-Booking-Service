@@ -4,7 +4,7 @@ const { MakeBooking }=require('../models');
 const {Enums}=require('../utils/common');
 const {INITIATED,CANCELLED,BOOKED}=Enums.BOOKING_STATUS;
 const CrudRepository = require('./crud-repository');
-
+const {Booking}= require('../models');
 class BookingRepository extends CrudRepository{
 
     constructor(){
@@ -16,7 +16,7 @@ class BookingRepository extends CrudRepository{
         return response;
     }
 
-    async getBookings(bookingData){
+    async getBookings(bookingData,transaction){
         const response = await MakeBooking.findAll({
           where: {
              bookingDate: bookingData.bookingDate,
@@ -48,7 +48,7 @@ class BookingRepository extends CrudRepository{
                 }
              ]
           }
-        });
+        },{transaction:transaction});
         return response;
     }
 
