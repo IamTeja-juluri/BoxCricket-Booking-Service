@@ -18,18 +18,16 @@ async function createBooking(data){
 
     try{
           console.log(data);
-        // const boxCricket= await axios.get(`${ServerConfig.BOX_CRICKET_SERVICE}/api/v1/boxcricket/${data.boxCricketId}`);
-        const boxCricket= await axios.get('http://localhost:6001/api/v1/boxcricket/2');
-
+        const boxCricket= await axios.get(`${ServerConfig.BOX_CRICKET_SERVICE}/api/v1/boxcricket/${data.boxCricketId}`);
 
         const boxCricketData=boxCricket.data.data;
         console.log("boxCricketData=",boxCricketData);
-        // const existingBookings=await getBookings(data);
-        // console.log("existingBookings=",existingBookings);
+        const existingBookings=await getBookings(data);
+        console.log("existingBookings=",existingBookings.length);
 
 
-        // if(existingBookings && existingBookings.length>1)
-        //     throw new AppError('Slot already booked for the given time'); 
+        if(existingBookings.length>0)
+            throw new AppError('Slot already booked for the given time'); 
          
         const totalBillingAmount =  boxCricketData.price;
         console.log('totalBillingAmount=',totalBillingAmount);
@@ -61,8 +59,44 @@ async function getBookings(data){
 
 }
 
+async function makePayment(data){
+
+    const transaction = await db.sequelize.transaction();
+    
+    try{
+        const bookingDetails= await bookingRepository.get(data.bookingId,transaction);
+        console.log(bookingDetails);
+        if(bookingDetails.status == CANCELLED){
+            throw new AppError('Booking expired ',StatusCodes.BAD_REQUEST);
+        }
+        const bookingTime = new Date(bookingDetails.createdAt);
+        const currentTime = new Date();
+
+        if(currentTime - bookingTime > 300000){
+            await cancelBooking(data.bookingId);
+            throw new AppError('Booking expired ',StatusCodes.BAD_REQUEST)
+        }
+
+        if(bookingDetails.totalCost != data.totalCost ){
+            throw new AppError('The amount of the payment doesnt match ',StatusCodes.BAD_REQUEST);
+
+        }
+        if(bookingDetails.userId != data.userId){
+            throw new AppError('The user corresponding to booking doesnt match ',StatusCodes.BAD_REQUEST);
+        }
+        // we assume here that payment is successful
+        const response = await bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
+       
+        await transaction.commit();
+        
+    } catch(error){
+        await transaction.rollback();
+        throw error;
+    }
+}
+
 
 
 module.exports={
-    createBooking,getBookings
+    createBooking,getBookings,makePayment
 }

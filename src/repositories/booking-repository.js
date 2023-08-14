@@ -5,6 +5,9 @@ const {Enums}=require('../utils/common');
 const {INITIATED,CANCELLED,BOOKED}=Enums.BOOKING_STATUS;
 const CrudRepository = require('./crud-repository');
 const {Booking}= require('../models');
+
+const AppError=require('../utils/errors/app-error');
+
 class BookingRepository extends CrudRepository{
 
     constructor(){
