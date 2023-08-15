@@ -44,7 +44,7 @@ async function makePayment(req,res){
         //              .json({message: 'cannot retry on successful payment'});
         // }
         const response= await BookingService.makePayment({
-            totalCost:req.body.totalCost,
+            price:req.body.price,
             userId: req.body.userId,
             bookingId:req.body.bookingId
         });

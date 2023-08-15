@@ -54,7 +54,7 @@ async function getBookings(data){
         return bookings;
     }catch(error){
         console.log();
-        throw error;
+        throw new AppError('Couldnot retrieve bookings =',+error,StatusCodes.INTERNAL_SERVER_ERROR);
     }
 
 }
@@ -64,30 +64,35 @@ async function makePayment(data){
     const transaction = await db.sequelize.transaction();
     
     try{
+        console.log('data=',data.price);
         const bookingDetails= await bookingRepository.get(data.bookingId,transaction);
-        console.log(bookingDetails);
-        if(bookingDetails.status == CANCELLED){
+        console.log("bookingDetails=",bookingDetails.dataValues);
+        if(bookingDetails.dataValues.status == CANCELLED){
             throw new AppError('Booking expired ',StatusCodes.BAD_REQUEST);
         }
-        const bookingTime = new Date(bookingDetails.createdAt);
-        const currentTime = new Date();
+        const bookingTime = new Date(bookingDetails.dataValues.createdAt);
+        const currentTime = new Date(); 5*60*10
 
-        if(currentTime - bookingTime > 300000){
+        if(currentTime - bookingTime > 300000){  //  5 mins
             await cancelBooking(data.bookingId);
             throw new AppError('Booking expired ',StatusCodes.BAD_REQUEST)
         }
 
-        if(bookingDetails.totalCost != data.totalCost ){
+        if(bookingDetails.dataValues.price != data.price ){
             throw new AppError('The amount of the payment doesnt match ',StatusCodes.BAD_REQUEST);
 
         }
-        if(bookingDetails.userId != data.userId){
+        if(bookingDetails.dataValues.userId != data.userId){
             throw new AppError('The user corresponding to booking doesnt match ',StatusCodes.BAD_REQUEST);
         }
         // we assume here that payment is successful
-        const response = await bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
+        const response =  bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
        
+        const bookingResponse= await bookingRepository.get(data.bookingId,transaction);
+
         await transaction.commit();
+         
+        return bookingResponse.dataValues;
         
     } catch(error){
         await transaction.rollback();
@@ -95,8 +100,33 @@ async function makePayment(data){
     }
 }
 
+async function cancelBooking(bookingId){
+    const transaction = await db.sequelize.transaction();
+    try{
+      const bookingDetails = await bookingRepository.get(bookingId,transaction);
+       if(bookingDetails.status === CANCELLED){
+        await transaction.commit();
+        return true;
+       }
+    await bookingRepository.update(bookingId,{status:CANCELLED},transaction);
+    await transaction.commit();
+    }catch(error){
+        await transaction.rollback();
+        throw error;
+    }
+}
+
+async function cancelOldBookings(){
+    try{
+        const time = new Date( Date.now() - 1000 * 300); // 5 mins ago
+        const response = await bookingRepository.cancelOldBookings(time);
+        return response;
+    }catch(error){
+       console.log(error);
+    }
+}
 
 
 module.exports={
-    createBooking,getBookings,makePayment
+    createBooking,getBookings,makePayment,cancelOldBookings,cancelBooking
 }
