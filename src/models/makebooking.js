@@ -4,7 +4,7 @@ const {
 } = require('sequelize');
 const {Enums}=require('../utils/common');
 const {BOOKED,CANCELLED,INITIATED,PENDING}=Enums.BOOKING_STATUS;
-
+const {BOOKING_DATE,START_TIME,END_TIME}= Enums.UNIQUE_FIELDS_FOR_BOOKING
 
 module.exports = (sequelize, DataTypes) => {
   class MakeBooking extends Model {
@@ -56,7 +56,7 @@ module.exports = (sequelize, DataTypes) => {
       // Add unique index constraint
       {
         unique: true,
-        fields: ['bookingDate', 'startTime', 'endTime'],
+        fields: [BOOKING_DATE, START_TIME, END_TIME],
         name: 'unique_booking'
       }
     ]

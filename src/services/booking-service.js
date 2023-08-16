@@ -17,22 +17,16 @@ async function createBooking(data){
     const transaction = await db.sequelize.transaction();
 
     try{
-          console.log(data);
         const boxCricket= await axios.get(`${ServerConfig.BOX_CRICKET_SERVICE}/api/v1/boxcricket/${data.boxCricketId}`);
 
         const boxCricketData=boxCricket.data.data;
-        console.log("boxCricketData=",boxCricketData);
         const existingBookings=await getBookings(data);
-        console.log("existingBookings=",existingBookings.length);
-
 
         if(existingBookings.length>0)
             throw new AppError('Slot already booked for the given time'); 
          
         const totalBillingAmount =  boxCricketData.price;
-        console.log('totalBillingAmount=',totalBillingAmount);
         const bookingPayload = { ...data , price: totalBillingAmount};
-        console.log('bookingPayload=',bookingPayload);
         const booking = await bookingRepository.createBooking(bookingPayload,transaction);
         await transaction.commit();
     
@@ -65,10 +59,7 @@ async function makePayment(data){
     
     try{
 
-        console.log('data=',data.price);
         const bookingDetails= await bookingRepository.get(data.bookingId,transaction);
-        console.log("bookingDetails=",bookingDetails.dataValues);
-
 
         if(bookingDetails.dataValues.status == CANCELLED){
             throw new AppError('Booking expired ',StatusCodes.BAD_REQUEST);
@@ -83,7 +74,6 @@ async function makePayment(data){
 
         if(bookingDetails.dataValues.price != data.price ){
             throw new AppError('The amount of the payment doesnt match ',StatusCodes.BAD_REQUEST);
-
         }
 
         if(bookingDetails.dataValues.userId != data.userId){

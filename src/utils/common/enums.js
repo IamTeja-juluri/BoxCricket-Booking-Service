@@ -5,6 +5,12 @@ const BOOKING_STATUS={
     PENDING:'pending'
 }
 
+const UNIQUE_FIELDS_FOR_BOOKING ={
+  BOOKING_DATE:'bookingDate',
+  START_TIME:'startTime',
+  END_TIME: 'endTime'
+}
+
 module.exports={
-    BOOKING_STATUS
+    BOOKING_STATUS,UNIQUE_FIELDS_FOR_BOOKING
 }

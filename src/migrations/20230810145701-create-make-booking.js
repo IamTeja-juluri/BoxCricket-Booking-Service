@@ -2,6 +2,8 @@
 /** @type {import('sequelize-cli').Migration} */
 const {Enums}=require('../utils/common');
 const {BOOKED,CANCELLED,INITIATED,PENDING}=Enums.BOOKING_STATUS;
+const {BOOKING_DATE,START_TIME,END_TIME}= Enums.UNIQUE_FIELDS_FOR_BOOKING
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('MakeBookings', {
@@ -52,7 +54,7 @@ module.exports = {
     });
     await queryInterface.addConstraint('MakeBookings', {
       type: 'unique',
-      fields: ['bookingDate', 'startTime', 'endTime'],
+      fields: [BOOKING_DATE, START_TIME, END_TIME],
       name: 'unique_booking'
     });
   },

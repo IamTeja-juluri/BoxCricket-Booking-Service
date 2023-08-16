@@ -19,6 +19,8 @@ class BookingRepository extends CrudRepository{
         return response;
     }
 
+
+   
     async getBookings(bookingData,transaction){
         const response = await MakeBooking.findAll({
           where: {
@@ -26,14 +28,28 @@ class BookingRepository extends CrudRepository{
              boxCricketId: bookingData.boxCricketId,
              [Op.or]:[
                 {
+                   [Op.and]:[{
                     startTime: {
                         [Op.between] : [bookingData.startTime,bookingData.endTime]
+                    }},
+                    {
+                        startTime: {
+                        [Op.ne]: bookingData.endTime
                     }
+                  }
+                 ]
                 },
                 {
+                  [Op.and]:[{
                     endTime: {
                         [Op.between] : [bookingData.startTime,bookingData.endTime]
-                    }
+                    }},
+                    {
+                        endTime:{
+                        [Op.ne]: bookingData.startTime
+                     }
+                  }
+                ]
                 },
                 {
                     [Op.and]:[
@@ -49,7 +65,19 @@ class BookingRepository extends CrudRepository{
                         }
                     ]
                 }
-             ]
+             ],
+            //  [Op.or] :[
+            //     {
+            //         startTime: {
+            //             [Op.gte]  : bookingData.endTime
+            //         }
+            //     },
+            //     {
+            //         endTime: {
+            //             [Op.lte]: bookingData.startTime
+            //         }
+            //     }
+            //  ]
           }
         },{transaction:transaction});
         return response;
