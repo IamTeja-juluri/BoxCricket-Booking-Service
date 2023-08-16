@@ -4,6 +4,8 @@ const {
 } = require('sequelize');
 const {Enums}=require('../utils/common');
 const {BOOKED,CANCELLED,INITIATED,PENDING}=Enums.BOOKING_STATUS;
+
+
 module.exports = (sequelize, DataTypes) => {
   class MakeBooking extends Model {
     /**
@@ -13,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      
     }
   }
   MakeBooking.init({
@@ -49,6 +52,14 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'MakeBooking',
+    indexes: [
+      // Add unique index constraint
+      {
+        unique: true,
+        fields: ['bookingDate', 'startTime', 'endTime'],
+        name: 'unique_booking'
+      }
+    ]
   });
   return MakeBooking;
 };

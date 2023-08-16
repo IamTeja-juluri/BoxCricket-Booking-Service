@@ -64,14 +64,17 @@ async function makePayment(data){
     const transaction = await db.sequelize.transaction();
     
     try{
+
         console.log('data=',data.price);
         const bookingDetails= await bookingRepository.get(data.bookingId,transaction);
         console.log("bookingDetails=",bookingDetails.dataValues);
+
+
         if(bookingDetails.dataValues.status == CANCELLED){
             throw new AppError('Booking expired ',StatusCodes.BAD_REQUEST);
         }
         const bookingTime = new Date(bookingDetails.dataValues.createdAt);
-        const currentTime = new Date(); 5*60*10
+        const currentTime = new Date(); //5*60*10
 
         if(currentTime - bookingTime > 300000){  //  5 mins
             await cancelBooking(data.bookingId);
@@ -82,13 +85,16 @@ async function makePayment(data){
             throw new AppError('The amount of the payment doesnt match ',StatusCodes.BAD_REQUEST);
 
         }
+
         if(bookingDetails.dataValues.userId != data.userId){
             throw new AppError('The user corresponding to booking doesnt match ',StatusCodes.BAD_REQUEST);
         }
+        
         // we assume here that payment is successful
-        const response =  bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
+        const response = await bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
        
-        const bookingResponse= await bookingRepository.get(data.bookingId,transaction);
+      
+        const bookingResponse =await bookingRepository.get(data.bookingId,transaction);
 
         await transaction.commit();
          

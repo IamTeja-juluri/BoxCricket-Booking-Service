@@ -17,7 +17,7 @@ module.exports = {
       },
     boxCricketId: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull:false
       },
     bookingDate: {
         type: Sequelize.DATEONLY,
@@ -49,6 +49,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
     }
+    });
+    await queryInterface.addConstraint('MakeBookings', {
+      type: 'unique',
+      fields: ['bookingDate', 'startTime', 'endTime'],
+      name: 'unique_booking'
     });
   },
   async down(queryInterface, Sequelize) {
