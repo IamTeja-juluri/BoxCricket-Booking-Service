@@ -19,37 +19,40 @@ class BookingRepository extends CrudRepository{
         return response;
     }
 
-
    
-    async getBookings(bookingData,transaction){
+    async overlappingBookings(bookingData,transaction){
         const response = await MakeBooking.findAll({
           where: {
              bookingDate: bookingData.bookingDate,
              boxCricketId: bookingData.boxCricketId,
              [Op.or]:[
                 {
-                   [Op.and]:[{
-                    startTime: {
-                        [Op.between] : [bookingData.startTime,bookingData.endTime]
-                    }},
-                    {
-                        startTime: {
-                        [Op.ne]: bookingData.endTime
-                    }
-                  }
-                 ]
+                   [Op.and]:[
+                        {
+                            startTime: {
+                                [Op.between] : [bookingData.startTime,bookingData.endTime]
+                            }
+                        },
+                        {
+                            startTime: {
+                                [Op.ne]: bookingData.endTime
+                            }
+                       }
+                   ]
                 },
                 {
-                  [Op.and]:[{
-                    endTime: {
-                        [Op.between] : [bookingData.startTime,bookingData.endTime]
-                    }},
-                    {
-                        endTime:{
-                        [Op.ne]: bookingData.startTime
-                     }
-                  }
-                ]
+                  [Op.and]:[
+                        {
+                            endTime: {
+                                [Op.between] : [bookingData.startTime,bookingData.endTime]
+                            }
+                        },
+                        {
+                            endTime: {
+                                [Op.ne]: bookingData.startTime
+                            }
+                        }
+                    ]
                 },
                 {
                     [Op.and]:[
@@ -65,23 +68,30 @@ class BookingRepository extends CrudRepository{
                         }
                     ]
                 }
-             ],
-            //  [Op.or] :[
-            //     {
-            //         startTime: {
-            //             [Op.gte]  : bookingData.endTime
-            //         }
-            //     },
-            //     {
-            //         endTime: {
-            //             [Op.lte]: bookingData.startTime
-            //         }
-            //     }
-            //  ]
+             ]
           }
         },{transaction:transaction});
         return response;
     }
+
+    async getBookingsByDateAndTime(data){
+        console.log('in booking repo',data)
+
+        const response = await MakeBooking.findAll({
+           where:[
+                {
+                    bookingDate: data.bookingDate
+                },
+                {
+                    startTime: data.bookingTime ? data.bookingTime :{} 
+                }
+            ]
+    
+        });
+        return response;
+    }
+
+    
 
     async get(data,transaction){
         const response=await MakeBooking.findByPk(data,{transaction:transaction});

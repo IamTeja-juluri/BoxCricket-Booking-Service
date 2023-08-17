@@ -28,6 +28,28 @@ async function createBooking(req,res){
 
 }
 
+
+async function getBookingsByDateAndTime(req,res){
+    
+    try{
+        console.log(req.query)
+        const response= await BookingService.getBookingsByDateAndTime(req.query);
+        SuccessResponse.data=response;
+        return res 
+                  .status(StatusCodes.OK)
+                  .json(SuccessResponse);
+
+    }catch(error){
+        ErrorResponse.error=error;
+        return res 
+                  .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                  .json(ErrorResponse)
+    }
+
+}
+
+
+
 async function makePayment(req,res){
     try{
         // console.log("req.headers=",req.headers);
@@ -65,5 +87,5 @@ async function makePayment(req,res){
 
 
 module.exports={
-    createBooking,makePayment
+    createBooking,makePayment,getBookingsByDateAndTime
 }

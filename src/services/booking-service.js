@@ -18,11 +18,10 @@ async function createBooking(data){
 
     try{
         const boxCricket= await axios.get(`${ServerConfig.BOX_CRICKET_SERVICE}/api/v1/boxcricket/${data.boxCricketId}`);
-
         const boxCricketData=boxCricket.data.data;
-        const existingBookings=await getBookings(data);
+        const conflictingBookings=await overlappingBookings(data);
 
-        if(existingBookings.length>0)
+        if(conflictingBookings.length>0)
             throw new AppError('Slot already booked for the given time'); 
          
         const totalBillingAmount =  boxCricketData.price;
@@ -41,10 +40,10 @@ async function createBooking(data){
 }
 
 
-async function getBookings(data){
+async function overlappingBookings(data){
 
     try{
-        const bookings = await bookingRepository.getBookings(data); 
+        const bookings = await bookingRepository.overlappingBookings(data); 
         return bookings;
     }catch(error){
         console.log();
@@ -96,6 +95,21 @@ async function makePayment(data){
     }
 }
 
+
+async function getBookingsByDateAndTime(data){
+   
+    try{
+        console.log('in booking service')
+        const response = await bookingRepository.getBookingsByDateAndTime(data);
+        return response;
+    } catch(error){
+       throw error;
+    }
+
+}
+
+
+
 async function cancelBooking(bookingId){
     const transaction = await db.sequelize.transaction();
     try{
@@ -124,5 +138,5 @@ async function cancelOldBookings(){
 
 
 module.exports={
-    createBooking,getBookings,makePayment,cancelOldBookings,cancelBooking
+    createBooking,overlappingBookings,getBookingsByDateAndTime,makePayment,cancelOldBookings,cancelBooking
 }
