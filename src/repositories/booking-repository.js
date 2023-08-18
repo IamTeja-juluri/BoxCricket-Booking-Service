@@ -25,6 +25,7 @@ class BookingRepository extends CrudRepository{
           where: {
              bookingDate: bookingData.bookingDate,
              boxCricketId: bookingData.boxCricketId,
+             status: BOOKED,
              [Op.or]:[
                 {
                    [Op.and]:[

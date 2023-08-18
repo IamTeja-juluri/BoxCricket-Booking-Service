@@ -1,17 +1,16 @@
-function compareTime(timeString1,timeString2){
-     let dateTime1=new Date(timeString1);
-     let dateTime2=new Date(timeString2);
-     return dateTime1.getTime() > dateTime2.getTime()
-}
+function compareDateTime(bookingDateString,startTimeString1,endTimeString2){
+     
+     const bookingDate=new Date(bookingDateString);
+     const currentTime = new Date();
 
-function compareDate(dateString1){
-     let date1=new Date(dateString1);
-     let date2=new Date();
-     console.log('date2=',date2.getFullDate())
-     return date1.getDate() > date2.getDate()
+     const startTime = new Date(bookingDateString+'T'+startTimeString1);
+     const endTime = new Date(bookingDateString+'T'+endTimeString2);
+
+     return (startTime<endTime && startTime>=currentTime) && (bookingDate.getDate() >= currentTime.getDate())
+
 }
 
 module.exports={
-     compareTime,
-     compareDate
+     compareDateTime
 }
+

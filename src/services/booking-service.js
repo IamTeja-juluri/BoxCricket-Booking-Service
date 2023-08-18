@@ -8,6 +8,7 @@ const AppError=require('../utils/errors/app-error');
 const { data } = require('../utils/common/error-response');
 const { Enums } = require('../utils/common/');
 const makebooking = require('../models/makebooking');
+const { json } = require('sequelize');
 const {BOOKED,CANCELLED,PENDING,INITIATED} = Enums.BOOKING_STATUS
 
 const bookingRepository= new BookingRepository();
@@ -116,10 +117,11 @@ async function cancelBooking(bookingId){
       const bookingDetails = await bookingRepository.get(bookingId,transaction);
        if(bookingDetails.status === CANCELLED){
         await transaction.commit();
-        return true;
+        return {message:'Booking already cancelled'};
        }
-    await bookingRepository.update(bookingId,{status:CANCELLED},transaction);
+    const response=await bookingRepository.update(bookingId,{status:CANCELLED},transaction);
     await transaction.commit();
+    return response;
     }catch(error){
         await transaction.rollback();
         throw error;

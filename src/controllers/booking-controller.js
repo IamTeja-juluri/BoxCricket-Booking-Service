@@ -48,6 +48,26 @@ async function getBookingsByDateAndTime(req,res){
 
 }
 
+async function cancelBooking(req,res){
+    
+    try{
+        console.log(req.query)
+        const response= await BookingService.cancelBooking(req.query.id);
+        SuccessResponse.data=response;
+        return res 
+                  .status(StatusCodes.OK)
+                  .json(SuccessResponse);
+
+    }catch(error){
+        ErrorResponse.error=error;
+        return res 
+                  .status(StatusCodes.INTERNAL_SERVER_ERROR)
+                  .json(ErrorResponse)
+    }
+
+}
+
+
 
 
 async function makePayment(req,res){
@@ -87,5 +107,5 @@ async function makePayment(req,res){
 
 
 module.exports={
-    createBooking,makePayment,getBookingsByDateAndTime
+    createBooking,getBookingsByDateAndTime,makePayment,cancelBooking
 }

@@ -9,6 +9,9 @@ router.post('/',
 router.get('/getBookingsOfSpecificDate',
                                         BookingMiddlewares.validateGetRequestForGetBookingsOfSpecificDate,BookingController.getBookingsByDateAndTime);
 
+router.get('/cancel',
+                    BookingController.cancelBooking);                                        
+
 router.post('/payments',
                         BookingController.makePayment);
 

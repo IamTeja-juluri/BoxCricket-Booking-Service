@@ -47,26 +47,15 @@ function validateCreateRequest(req,res,next){
               .json(ErrorResponse);
     }
 
-    // if(!(DateTimeHelper.compareDate(req.body.bookingDate))){
-    //     ErrorResponse.message='Something went wrong while booking a ground';
-    //     ErrorResponse.error=new AppError(['Date not found in the incoming request in the correct form'],StatusCodes.BAD_REQUEST);
-    //     return res
-    //           .status(StatusCodes.BAD_REQUEST)
-    //           .json(ErrorResponse); 
-    // }
 
-
-    // if(!(DateTimeHelper.compareTime(req.body.startTime,req.body.endTime))){
-    //     ErrorResponse.message='Something went wrong while booking a ground';
-    //     ErrorResponse.error=new AppError(['startTime and endTime not found in the incoming request in the correct form'],StatusCodes.BAD_REQUEST);
-    //     return res
-    //           .status(StatusCodes.BAD_REQUEST)
-    //           .json(ErrorResponse);     
-    // }
-
-   
-
-  
+    if(!(DateTimeHelper.compareDateTime(req.body.bookingDate,req.body.startTime,req.body.endTime))){
+        
+        ErrorResponse.message='Something went wrong while booking a ground';
+        ErrorResponse.error=new AppError(['startTime or endTime or booking date not found in the incoming request in the correct form'],StatusCodes.BAD_REQUEST);
+        return res
+              .status(StatusCodes.BAD_REQUEST)
+              .json(ErrorResponse);     
+    }
 
    
     next();  //controller is the next middleware
