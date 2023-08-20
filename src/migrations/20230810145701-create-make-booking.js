@@ -1,8 +1,9 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 const {Enums}=require('../utils/common');
+const { Op } = require("sequelize");
 const {BOOKED,CANCELLED,INITIATED,PENDING}=Enums.BOOKING_STATUS;
-const {BOOKING_DATE,START_TIME,END_TIME}= Enums.UNIQUE_FIELDS_FOR_BOOKING
+const {BOOKING_DATE,START_TIME,END_TIME,STATUS}= Enums.UNIQUE_FIELDS_FOR_BOOKING
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -52,10 +53,13 @@ module.exports = {
         allowNull: false
     }
     });
-    await queryInterface.addConstraint('MakeBookings', {
-      type: 'unique',
-      fields: [BOOKING_DATE, START_TIME, END_TIME],
-      name: 'unique_booking'
+    await queryInterface.addIndex('MakeBookings', {
+      fields:[BOOKING_DATE,START_TIME,END_TIME],
+      unique: true,
+      where: {
+        status: BOOKED
+      },
+      name:'unique_booked'
     });
   },
   async down(queryInterface, Sequelize) {

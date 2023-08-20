@@ -84,6 +84,7 @@ async function makePayment(data){
         const response = await bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
        
       
+        await bookingRepository.get(data.bookingId,transaction);
         const bookingResponse =await bookingRepository.get(data.bookingId,transaction);
 
         await transaction.commit();
